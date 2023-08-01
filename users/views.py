@@ -1,4 +1,5 @@
 import requests
+from datetime import datetime
 import json
 from .serializers import (
     UserBaseSerializer,
@@ -36,12 +37,16 @@ class SignupView(APIView):
         user_id = request.data["user_id"]
         password = request.data["password"]
         name = request.data["name"]
-        birth = request.data["birth"]
+        
+        my_birth = datetime.strptime(request.data["birth"], "%Y%m%d").date()
+        
+        request.data["birth"] = my_birth
+        
         serializer = UserBaseSerializer(data=request.data)
 
         if serializer.is_valid():
             User.objects.create_user(
-                user_id=user_id, password=password, name=name, birth=birth
+                user_id=user_id, password=password, name=name, birth=my_birth
             )
             return Response({"message": "회원가입 완료"}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
