@@ -5,7 +5,7 @@ from .serializers import (
     UserBaseSerializer,
     MyTokenObtainPairSerializer,
     UserInfoReturnSerializer,
-    SubscribeBaseSerializer
+    SubscribeBaseSerializer,
 )
 from django.shortcuts import redirect
 from django.contrib.auth import get_user_model
@@ -40,11 +40,11 @@ class SignupView(APIView):
         user_id = request.data["user_id"]
         password = request.data["password"]
         name = request.data["name"]
-        
+
         my_birth = datetime.strptime(request.data["birth"], "%Y%m%d").date()
-        
+
         request.data["birth"] = my_birth
-        
+
         serializer = UserBaseSerializer(data=request.data)
 
         if serializer.is_valid():
@@ -65,15 +65,34 @@ class CheckIdExistView(APIView):
         else:
             return Response({"message": "사용 가능한 아이디입니다."}, status=status.HTTP_200_OK)
 
-class ResetPasswordView(APIView):
-    pass
-    # def post(self,request):
-        
-    #     user_id = request.data["user_id"]
-    #     my_birth = datetime.strptime(request.data["birth"], "%Y%m%d").date()
-    
 
-        
+class UserVerifyView(APIView):
+    def post(self, request):
+        user_id = request.data["user_id"]
+        my_birth = datetime.strptime(request.data["birth"], "%Y%m%d").date()
+
+        user = User.objects.filter(user_id=user_id, birth=my_birth).first()
+
+        if user:
+            return Response({"message": "확인 완료"}, status=status.HTTP_200_OK)
+        else:
+            return Response({"message": "유저를 찾을 수 없음"}, status=status.HTTP_404_NOT_FOUND)
+
+
+class ResetPasswordView(APIView):
+    def put(self, request):
+        user_id = request.data["user_id"]
+        reset_password = request.data["reset"]
+
+        user = User.objects.get(user_id=user_id)
+
+        if user:
+            user.set_password(reset_password)
+            user.save()
+            return Response({"message": "변경 완료"}, status=status.HTTP_200_OK)
+        return Response({"message": "유저를 찾을 수 없음"}, status=status.HTTP_404_NOT_FOUND)
+
+
 # class KakaoLoginView(APIView):
 #     def get(self, request):
 #         return redirect(
@@ -81,25 +100,44 @@ class ResetPasswordView(APIView):
 #         )
 
 
-class MyProfileView(APIView):
+class ProfileDetailView(APIView):
     permission_classes = [IsAuthenticated]
-    
-    def get(self,request):
-        
+
+    def get(self, request):
         user_id = request.user
+
         user = User.objects.get(user_id=user_id)
-        
-        
-        serialized_sub = SubscribeBaseSerializer(user.subscribe.all(),many=True).data
-        
+
+        serialized_sub = SubscribeBaseSerializer(user.subscribe.all(), many=True).data
+
         serilaizer = UserInfoReturnSerializer(user_id)
-        response_data = {
-            "profile":serilaizer.data,
-            "subscribe":serialized_sub
-        }
+        response_data = {"profile": serilaizer.data, "subscribe": serialized_sub}
         return Response(response_data, status=status.HTTP_200_OK)
 
-
+class ProfileUpdateView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def put(self,request):
+        
+        user_id = request.user
+        
+        if user_id :
+            
+            user = User.objects.get(user_id=user_id)
+            
+            edit_name = request.data["edit_name"]
+            edit_birth = datetime.strptime(request.data["edit_birth"], "%Y%m%d").date()
+            
+            user.name = edit_name
+            user.birth = edit_birth
+            user.save()
+            
+            return Response({"message" : "수정 완료"},status=status.HTTP_200_OK)
+        else:
+            return Response({"message": "인증되지 않은 사용자입니다."}, status=status.HTTP_401_UNAUTHORIZED)
+            
+        
+        
 # class KakaoCallbackView(APIView):
 #     def get(self, request):
 
