@@ -35,8 +35,6 @@ class User(AbstractBaseUser):
     name = models.CharField(verbose_name="이름", max_length=30, default="")
     birth = models.DateField(verbose_name="생일", max_length=30, null=True, blank=True)
 
-    is_subscribe = models.BooleanField(default=False)
-
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
 
@@ -53,3 +51,14 @@ class User(AbstractBaseUser):
 
     def __str__(self):
         return self.user_id
+
+class Subscribe(models.Model):
+    
+    is_subscribe = models.BooleanField(default=False)
+    sub_start = models.DateTimeField(verbose_name="구독시작날짜",null=True, blank=True, default=None)
+    sub_end = models.DateTimeField(verbose_name="구독만료날짜",null=True, blank=True, default=None)
+    user = models.ForeignKey(to=User, on_delete=models.CASCADE, related_name="subscribe")
+    
+    def __str__(self):
+        return self.is_subscribe
+    
