@@ -4,6 +4,8 @@ import json
 from .serializers import (
     UserBaseSerializer,
     MyTokenObtainPairSerializer,
+    UserInfoReturnSerializer,
+    SubscribeBaseSerializer
 )
 from django.shortcuts import redirect
 from django.contrib.auth import get_user_model
@@ -17,6 +19,7 @@ from rest_framework.exceptions import AuthenticationFailed
 from dj_rest_auth.registration.views import SocialLoginView
 from allauth.socialaccount.providers.kakao import views as kakao_view
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
+from .models import Subscribe
 
 from mysettings import (
     MY_BASE_URL,
@@ -45,9 +48,10 @@ class SignupView(APIView):
         serializer = UserBaseSerializer(data=request.data)
 
         if serializer.is_valid():
-            User.objects.create_user(
+            user = User.objects.create_user(
                 user_id=user_id, password=password, name=name, birth=my_birth
             )
+            subscribe = Subscribe.objects.create(user=user)
             return Response({"message": "회원가입 완료"}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -61,7 +65,15 @@ class CheckIdExistView(APIView):
         else:
             return Response({"message": "사용 가능한 아이디입니다."}, status=status.HTTP_200_OK)
 
+class ResetPasswordView(APIView):
+    pass
+    # def post(self,request):
+        
+    #     user_id = request.data["user_id"]
+    #     my_birth = datetime.strptime(request.data["birth"], "%Y%m%d").date()
+    
 
+        
 # class KakaoLoginView(APIView):
 #     def get(self, request):
 #         return redirect(
@@ -69,7 +81,23 @@ class CheckIdExistView(APIView):
 #         )
 
 
-# class MyProfileView(APIView):
+class MyProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def get(self,request):
+        
+        user_id = request.user
+        user = User.objects.get(user_id=user_id)
+        
+        
+        serialized_sub = SubscribeBaseSerializer(user.subscribe.all(),many=True).data
+        
+        serilaizer = UserInfoReturnSerializer(user_id)
+        response_data = {
+            "profile":serilaizer.data,
+            "subscribe":serialized_sub
+        }
+        return Response(response_data, status=status.HTTP_200_OK)
 
 
 # class KakaoCallbackView(APIView):

@@ -2,7 +2,7 @@ from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth import get_user_model
 from django.contrib.auth import authenticate
-from .models import User
+from .models import User, Subscribe
 
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
@@ -17,3 +17,16 @@ class UserBaseSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = "__all__"
+        
+class UserInfoReturnSerializer(UserBaseSerializer):
+    
+    class Meta(UserBaseSerializer.Meta):
+        
+        fields=["name","birth"]
+
+class SubscribeBaseSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Subscribe
+        fields = ["is_subscribe","sub_start","sub_end"]
+        
