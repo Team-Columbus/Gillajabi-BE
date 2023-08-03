@@ -46,7 +46,7 @@ class LoginView(APIView):
         user = User.objects.filter(user_id=user_id).first()
 
         if user is None or not check_password(password, user.password):
-            return Response({"message": "로그인 실패"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"message": "아이디 또는 비밀번호가 올바르지 않습니다"}, status=status.HTTP_401_UNAUTHORIZED)
 
         if user is not None:
             token = TokenObtainPairSerializer.get_token(user)
@@ -112,7 +112,7 @@ class ResetPasswordView(APIView):
             user.set_password(reset_password)
             user.save()
             return Response({"message": "변경 완료"}, status=status.HTTP_200_OK)
-        return Response({"message": "유저를 찾을 수 없음"}, status=status.HTTP_404_NOT_FOUND)
+        return Response({"message": "유저를 찾을 수 없습니다"}, status=status.HTTP_404_NOT_FOUND)
 
 
 # class KakaoLoginView(APIView):
