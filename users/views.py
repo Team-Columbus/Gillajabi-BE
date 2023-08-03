@@ -98,9 +98,7 @@ class UserVerifyView(APIView):
         if user:
             return Response({"isvalid": True}, status=status.HTTP_200_OK)
         else:
-            return Response(
-                {"isvalid": False}, status=status.HTTP_404_NOT_FOUND
-            )
+            return Response({"isvalid": False}, status=status.HTTP_404_NOT_FOUND)
 
 
 class ResetPasswordView(APIView):
@@ -136,8 +134,8 @@ class ProfileDetailView(APIView):
             serialized_sub = SubscribeBaseSerializer(user.subscribe.all()[0]).data
 
             serilaizer = UserInfoReturnSerializer(user_id)
-            response_data = {"info": serilaizer.data, "subscribe": serialized_sub}
-            return Response(response_data, status=status.HTTP_200_OK)
+            response = CreateReturnInfo(user)
+            return response
         else:
             return Response(
                 {"message": "인증되지 않은 사용자입니다."}, status=status.HTTP_401_UNAUTHORIZED
@@ -180,13 +178,16 @@ class TokenValidateView(APIView):
             )
 
 
-def CreateReturnInfo(user, usage, access_token=None):
-    serialized_sub = SubscribeBaseSerializer(user.subscribe.all()[0]).data
+def CreateReturnInfo(user, usage=None, access_token=None):
+    sub_info = user.subscribe.all()[0]
     response = Response(
         {
             "user": {
-                "info": UserInfoReturnSerializer(user).data,
-                "subscribe": serialized_sub,
+                "name": user.name,
+                "birth": user.birth,
+                "is_subscribe": sub_info.is_subscribe,
+                "sub_start": sub_info.sub_start,
+                "sub_end": sub_info.sub_end,
             },
         },
         status=status.HTTP_200_OK,
