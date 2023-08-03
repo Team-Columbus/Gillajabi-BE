@@ -54,7 +54,7 @@ class User(AbstractBaseUser):
 
 class Subscribe(models.Model):
     
-    is_subscribe = models.BooleanField(default=False)
+    is_subscribe = models.BooleanField(verbose_name="구독여부",default=False)
     sub_start = models.DateTimeField(verbose_name="구독시작날짜",null=True, blank=True, default=None)
     sub_end = models.DateTimeField(verbose_name="구독만료날짜",null=True, blank=True, default=None)
     user = models.ForeignKey(to=User, on_delete=models.CASCADE, related_name="subscribe")
