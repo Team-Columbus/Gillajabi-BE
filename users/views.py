@@ -230,40 +230,25 @@ class CustomTokenRefreshView(APIView):
 #             )
 
 
-class TokenValidateView(APIView):
-    authentication_classes = [CustomJWTAuthentication]
-
-    def get(self, request):
-        auth_header = get_authorization_header(request)
-        token = auth_header.decode("utf-8").split()[1]
-        payload = jwt.decode(token, MY_SECRET_KEY, algorithms=["HS256"])
-
-        # 사용자 정보 확인
-        user_id = payload.get("user_id")
-
-        # print(user_id)
-        # print(f"user_name은 {payload.get('username')}")
-        # payload = jwt.decode(token, "SECRET_KEY", algorithms=["HS256"])
-
-        logger.debug(f"사용자가 요청 보냄: {request.user}는 {request.user.is_authenticated}")
-        logger.debug(f"해당 사용자의 정보 {user_id}, {token}")
-        # print(f"이런 이걸 봐라 {request.user} 는 {request.headers['Authorization']}를 가지고 {request.user.is_authenticated}")
-        # print(f"이건 뭔데 {request}")
-        if request.user is not None and request.user.is_authenticated:
-            response = CreateReturnInfo(request.user, "유효성")
-            return response
-        else:
-            return Response(
-                {"user": {}, "isvalid": False}, status=status.HTTP_401_UNAUTHORIZED
-            )
-
-
 # class TokenValidateView(APIView):
 #     authentication_classes = [CustomJWTAuthentication]
 
 #     def get(self, request):
+#         auth_header = get_authorization_header(request)
+#         token = auth_header.decode("utf-8").split()[1]
+#         payload = jwt.decode(token, MY_SECRET_KEY, algorithms=["HS256"])
 
-#         logger.debug(f"사용자가 요청 보냄: {request.user}")
+#         # 사용자 정보 확인
+#         user_id = payload.get("user_id")
+
+#         # print(user_id)
+#         # print(f"user_name은 {payload.get('username')}")
+#         # payload = jwt.decode(token, "SECRET_KEY", algorithms=["HS256"])
+
+#         logger.debug(f"사용자가 요청 보냄: {request.user}는 {request.user.is_authenticated}")
+#         logger.debug(f"해당 사용자의 정보 {user_id}, {token}")
+#         # print(f"이런 이걸 봐라 {request.user} 는 {request.headers['Authorization']}를 가지고 {request.user.is_authenticated}")
+#         # print(f"이건 뭔데 {request}")
 #         if request.user is not None and request.user.is_authenticated:
 #             response = CreateReturnInfo(request.user, "유효성")
 #             return response
@@ -271,6 +256,21 @@ class TokenValidateView(APIView):
 #             return Response(
 #                 {"user": {}, "isvalid": False}, status=status.HTTP_401_UNAUTHORIZED
 #             )
+
+
+class TokenValidateView(APIView):
+    authentication_classes = [CustomJWTAuthentication]
+
+    def get(self, request):
+
+        logger.debug(f"사용자가 요청 보냄: {request.user}")
+        if request.user is not None and request.user.is_authenticated:
+            response = CreateReturnInfo(request.user, "유효성")
+            return response
+        else:
+            return Response(
+                {"user": {}, "isvalid": False}, status=status.HTTP_401_UNAUTHORIZED
+            )
 
 
 def CreateReturnInfo(user, usage=None, access_token=None):
