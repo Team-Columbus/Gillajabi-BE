@@ -195,13 +195,12 @@ class CustomTokenRefreshView(TokenRefreshView):
         test = request.COOKIES.get("refresh_token")
 
         refresh_token = RefreshToken(request.COOKIES.get("refresh_token"))
-        
-        
+
         if refresh_token:
-            
-            
             access_token = refresh_token.access_token
-            print(str(access_token))
+            payload = jwt.decode(str(access_token), MY_SECRET_KEY, algorithms=["HS256"])
+
+            logger.debug(f"내가 생성함 : {access_token} 사용자는 이거임 {payload.get('user_id')}")
             return Response({"access": str(access_token)}, status=status.HTTP_200_OK)
         else:
             return Response(
@@ -285,18 +284,16 @@ def CreateReturnInfo(user, usage=None, access_token=None):
 class TestApiView(APIView):
     def post(self, request):
         token = request.data["access"]
-        
-        
+
         print(type(token))
         # 사용자 정보 확인
-        
+
         payload = jwt.decode(token, MY_SECRET_KEY, algorithms=["HS256"])
 
         user_id = payload.get("user_id")
         # logger.debug(f"사용자가 요청 보냄: {request.user}는 {request.user.is_authenticated}")
         logger.debug(f"해당 사용자의 정보 {user_id}, {token}")
-        
-        
+
         print(f"해당 사용자의 정보 {user_id}, {token}")
 
         return Response({"message": "1231231"})
