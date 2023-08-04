@@ -7,7 +7,6 @@ from .serializers import (
     MyTokenObtainPairSerializer,
     UserInfoReturnSerializer,
     SubscribeBaseSerializer,
-    CustomTokenRefreshSerializer,
 )
 from django.shortcuts import redirect
 from django.contrib.auth import get_user_model
