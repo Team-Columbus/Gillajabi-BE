@@ -1,6 +1,7 @@
 import requests
 import json
 import jwt
+import logging
 from datetime import datetime
 from .serializers import (
     UserBaseSerializer,
@@ -36,7 +37,7 @@ from .authenticate import CustomJWTAuthentication
 
 User = get_user_model()
 KAKAO_CALLBACK_URI = MY_BASE_URL + "api/users/kakao/callback/"
-
+logger = logging.getLogger(__name__)
 
 class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
@@ -134,18 +135,16 @@ class ProfileDetailView(APIView):
 
     def get(self, request):
         user_id = request.user
-
+        
+        logger.debug(f"사용자가 요청 보냄: {request.user}")
         if user_id:
             user = User.objects.get(user_id=user_id)
 
-            serialized_sub = SubscribeBaseSerializer(user.subscribe.all()[0]).data
-
-            serilaizer = UserInfoReturnSerializer(user_id)
-            response = CreateReturnInfo(user)
+            response = CreateReturnInfo(user, "유효성")
             return response
         else:
             return Response(
-                {"message": "인증되지 않은 사용자입니다."}, status=status.HTTP_401_UNAUTHORIZED
+                {"user": {}, "isvalid": False}, status=status.HTTP_401_UNAUTHORIZED
             )
 
 
@@ -176,7 +175,6 @@ class ProfileUpdateView(APIView):
 #     serializer_class = CustomTokenRefreshSerializer
 
 
-        
 class CustomTokenRefreshView(TokenRefreshView):
     def get(self, request):
         refresh_token = RefreshToken(request.COOKIES.get("refresh_token"))
@@ -194,6 +192,8 @@ class TokenValidateView(APIView):
     authentication_classes = [CustomJWTAuthentication]
 
     def get(self, request):
+        
+        logger.debug(f"사용자가 요청 보냄: {request.user}")
         if request.user is not None and request.user.is_authenticated:
             response = CreateReturnInfo(request.user, "유효성")
             return response
