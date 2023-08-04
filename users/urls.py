@@ -12,12 +12,14 @@ from users.views import (
     ProfileUpdateView,
     TokenValidateView,
     CustomTokenRefreshView,
+    TestApiView,
     # KakaoCallbackView,
     # KakaoLogin,
     # KakaoLoginView
 )
 
 urlpatterns = [
+    path("test/", TestApiView.as_view(), name="test"),
     path("signup/", SignupView.as_view(), name="signup"),
     # path("login/", MyTokenObtainPairView.as_view(), name="login"),
     path("login/", LoginView.as_view(), name="login"),

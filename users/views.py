@@ -195,6 +195,8 @@ class CustomTokenRefreshView(TokenRefreshView):
         test = request.COOKIES.get("refresh_token")
 
         refresh_token = RefreshToken(request.COOKIES.get("refresh_token"))
+        
+        
         if refresh_token:
             access_token = refresh_token.access_token
             return Response({"access": str(access_token)}, status=status.HTTP_200_OK)
@@ -206,7 +208,7 @@ class CustomTokenRefreshView(TokenRefreshView):
 
 class TokenValidateView(APIView):
     authentication_classes = [CustomJWTAuthentication]
-    
+
     def get(self, request):
         auth_header = get_authorization_header(request)
         token = auth_header.decode("utf-8").split()[1]
@@ -277,9 +279,26 @@ def CreateReturnInfo(user, usage=None, access_token=None):
 #     client_class = OAuth2Client
 
 
-# class TestApiView(APIView):
+class TestApiView(APIView):
+    def post(self, request):
+        token = request.data["access"]
+        
+        
+        print(type(token))
+        # 사용자 정보 확인
+        
+        payload = jwt.decode(token, MY_SECRET_KEY, algorithms=["HS256"])
 
-#     def get
+        user_id = payload.get("user_id")
+        # logger.debug(f"사용자가 요청 보냄: {request.user}는 {request.user.is_authenticated}")
+        logger.debug(f"해당 사용자의 정보 {user_id}, {token}")
+        
+        
+        print(f"해당 사용자의 정보 {user_id}, {token}")
+
+        return Response({"message": "1231231"})
+        # print(f"이런 이걸 봐라 {request.user} 는 {request.headers['Authorization']}를 가지고 {request.user.is_authenticated}")
+        # print(f"이건 뭔데 {request}")
 
 
 # class KakaoCallbackView(APIView):
