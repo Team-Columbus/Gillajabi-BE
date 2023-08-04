@@ -200,6 +200,7 @@ class CustomTokenRefreshView(APIView):
     def post(self, request):
         refresh_token = request.COOKIES.get("refresh_token")
         id = decode_refresh_token(refresh_token)
+        logger.debug(f"사용자가 요청 보낸 사람의 아이디 {id}")
         access_token = create_access_token(id)
         return Response({"access": access_token})
 
