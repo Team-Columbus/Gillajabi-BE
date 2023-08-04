@@ -34,7 +34,13 @@ from mysettings import (
     MY_SOCIAL_AUTH_KAKAO_CLIENT_ID,
     MY_SOCIAL_AUTH_KAKAO_SECRET,
 )
-from .authenticate import CustomJWTAuthentication
+from .authenticate import (
+    CustomJWTAuthentication,
+    decode_access_token,
+    decode_refresh_token,
+    create_access_token,
+    create_refresh_token,
+)
 
 User = get_user_model()
 KAKAO_CALLBACK_URI = MY_BASE_URL + "api/users/kakao/callback/"
@@ -190,22 +196,38 @@ class ProfileUpdateView(APIView):
 #     serializer_class = CustomTokenRefreshSerializer
 
 
-class CustomTokenRefreshView(TokenRefreshView):
-    def get(self, request):
-        test = request.COOKIES.get("refresh_token")
+class CustomTokenRefreshView(APIView):
+    def post(self, request):
+        refresh_token = request.COOKIES.get("refresh_token")
+        id = decode_refresh_token(refresh_token)
+        access_token = create_access_token(id)
+        return Response({"access": access_token})
 
-        refresh_token = RefreshToken(request.COOKIES.get("refresh_token"))
 
-        if refresh_token:
-            access_token = refresh_token.access_token
-            payload = jwt.decode(str(access_token), MY_SECRET_KEY, algorithms=["HS256"])
+# class CustomTokenRefreshView(TokenRefreshView):
+#     def get(self, request):
+#         test = request.COOKIES.get("refresh_token")
 
-            logger.debug(f"내가 생성함 : {access_token} 사용자는 이거임 {payload.get('user_id')}")
-            return Response({"access": str(access_token)}, status=status.HTTP_200_OK)
-        else:
-            return Response(
-                {"message": "인증되지 않은 사용자입니다."}, status=status.HTTP_401_UNAUTHORIZED
-            )
+#         try:
+#             refresh_token = RefreshToken(test)
+#             print(refresh_token.verify)
+#             # print(type(refresh_token))
+
+#             access_token = refresh_token.access_token
+#             response = Response(
+#                 {"access": str(access_token)}, status=status.HTTP_200_OK
+#             )
+#             response.set_cookie(
+#                 "refresh_token", str(refresh_token), httponly=True, secure=True
+#             )
+#             payload = jwt.decode(str(access_token), MY_SECRET_KEY, algorithms=["HS256"])
+
+#             logger.debug(f"내가 생성함 : {access_token} 사용자는 이거임 {payload.get('user_id')}")
+#             return response
+#         except Exception as e:
+#             return Response(
+#                 {"message": "리프레시 토큰이 유효하지 않습니다."}, status=status.HTTP_401_UNAUTHORIZED
+#             )
 
 
 class TokenValidateView(APIView):
