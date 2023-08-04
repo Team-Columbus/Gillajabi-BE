@@ -198,7 +198,10 @@ class CustomTokenRefreshView(TokenRefreshView):
         
         
         if refresh_token:
+            
+            
             access_token = refresh_token.access_token
+            print(str(access_token))
             return Response({"access": str(access_token)}, status=status.HTTP_200_OK)
         else:
             return Response(
