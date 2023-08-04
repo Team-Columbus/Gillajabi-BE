@@ -1,29 +1,34 @@
 import requests
-from datetime import datetime
 import json
+import jwt
+from datetime import datetime
 from .serializers import (
     UserBaseSerializer,
     MyTokenObtainPairSerializer,
     UserInfoReturnSerializer,
     SubscribeBaseSerializer,
+    CustomTokenRefreshSerializer,
 )
 from django.shortcuts import redirect
 from django.contrib.auth import get_user_model
 from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import check_password
 from rest_framework.views import APIView
+from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import AuthenticationFailed
+from rest_framework_simplejwt.views import TokenRefreshView
 from dj_rest_auth.registration.views import SocialLoginView
 from allauth.socialaccount.providers.kakao import views as kakao_view
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
 from .models import Subscribe
 
 from mysettings import (
+    MY_SECRET_KEY,
     MY_BASE_URL,
     MY_SOCIAL_AUTH_KAKAO_CLIENT_ID,
     MY_SOCIAL_AUTH_KAKAO_SECRET,
@@ -46,7 +51,10 @@ class LoginView(APIView):
         user = User.objects.filter(user_id=user_id).first()
 
         if user is None or not check_password(password, user.password):
-            return Response({"message": "아이디 또는 비밀번호가 올바르지 않습니다"}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response(
+                {"message": "아이디 또는 비밀번호가 올바르지 않습니다"},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
 
         if user is not None:
             token = TokenObtainPairSerializer.get_token(user)
@@ -159,6 +167,24 @@ class ProfileUpdateView(APIView):
             user.save()
 
             return Response({"message": "수정 완료"}, status=status.HTTP_200_OK)
+        else:
+            return Response(
+                {"message": "인증되지 않은 사용자입니다."}, status=status.HTTP_401_UNAUTHORIZED
+            )
+
+
+# class CustomTokenRefreshView(TokenRefreshView):
+#     serializer_class = CustomTokenRefreshSerializer
+
+
+        
+class CustomTokenRefreshView(TokenRefreshView):
+    def get(self, request):
+        refresh_token = RefreshToken(request.COOKIES.get("refresh_token"))
+
+        if refresh_token:
+            access_token = refresh_token.access_token
+            return Response({"access": str(access_token)}, status=status.HTTP_200_OK)
         else:
             return Response(
                 {"message": "인증되지 않은 사용자입니다."}, status=status.HTTP_401_UNAUTHORIZED
