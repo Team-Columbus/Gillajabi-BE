@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/4.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
-
+from datetime import timedelta
 from pathlib import Path
 from mysettings import MY_SECRET_KEY
 
@@ -39,15 +39,12 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.sites",
-    
     "users",
-    
+    "burgers",
     "rest_framework",
     "rest_framework.authtoken",
     "rest_framework_simplejwt",
-    
     "corsheaders",
-    
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
@@ -68,7 +65,7 @@ REST_FRAMEWORK = {
 }
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -80,7 +77,7 @@ MIDDLEWARE = [
 
 
 CORS_ORIGIN_ALLOW_ALL = True
-# CORS_ALLOW_CREDENTIALS = True 
+# CORS_ALLOW_CREDENTIALS = True
 
 
 ROOT_URLCONF = "config.urls"
@@ -158,3 +155,8 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+SIMPLE_JWT = {
+    # Access 토큰 유효 시간 설정하기
+    "ACCESS_TOKEN_LIFETIME": timedelta(seconds=5),
+}
