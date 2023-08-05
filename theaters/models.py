@@ -2,7 +2,7 @@ from django.db import models
 
 class CGVMovie(models.Model):
     id = models.BigAutoField(primary_key=True)
-    movie_poster = models.ImageField(upload_to='movie_posters/')
+    movie_poster = models.URLField()
     title = models.CharField(max_length=255)
     rating = models.CharField(max_length=255)
     theater_house = models.CharField(max_length=255)
