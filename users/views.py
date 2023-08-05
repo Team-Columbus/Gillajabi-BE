@@ -99,7 +99,7 @@ class SignupView(APIView):
 class CheckIdExistView(APIView):
     def get(self, request, user_id):
         if user_id and User.objects.filter(user_id=user_id).exists():
-            return Response({"isvalid": False}, status=status.HTTP_409_CONFLICT)
+            return Response({"isvalid": False}, status=status.HTTP_200_OK)  
         else:
             return Response({"isvalid": True}, status=status.HTTP_200_OK)
 
@@ -114,7 +114,7 @@ class UserVerifyView(APIView):
         if user:
             return Response({"isvalid": True}, status=status.HTTP_200_OK)
         else:
-            return Response({"isvalid": False}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"isvalid": False}, status=status.HTTP_200_OK)
 
 
 class ResetPasswordView(APIView):
