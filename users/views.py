@@ -92,7 +92,9 @@ class SignupView(APIView):
                 user_id=user_id, password=password, name=name, birth=my_birth
             )
             Subscribe.objects.create(user=user)
-            return Response({"message": "회원가입 완료"}, status=status.HTTP_201_CREATED)
+            
+            response = CreateReturnInfo(user, "회원가입")
+            return response
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -294,6 +296,9 @@ def CreateReturnInfo(user, usage=None, access_token=None):
         response.data["access_token"] = access_token
     elif usage == "유효성":
         response.data["isvalid"] = True
+    elif usage == "회원가입":
+        response.data["message"] = "회원가입 성공"
+        response.status_code = status.HTTP_201_CREATED
 
     return response
 
