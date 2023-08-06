@@ -7,6 +7,7 @@ from .serializers import (
     SetMenuReturnSerializer,
     DrinkSelectSerializer,
     SingleMenuReturnSerializer,
+    SideMenuReturnSerializer,
 )
 from .models import Mcdonald
 
@@ -45,7 +46,7 @@ class SideMenuListView(APIView):
             Q(menu_name__contains="후라이") | Q(menu_name__contains="코울슬로")
         )
 
-        serialized_data = McdonaldSerializer(data, many=True).data
+        serialized_data = SideMenuReturnSerializer(data, many=True).data
         return Response(serialized_data)
 
 
@@ -56,8 +57,7 @@ class DrinkListView(APIView):
         serialized_data = DrinkSelectSerializer(data, many=True).data
 
         return Response(serialized_data)
-
-
+        
 class CategoryFilterView(APIView):
     def post(self, request):
         food_category = request.data["food_category"]
