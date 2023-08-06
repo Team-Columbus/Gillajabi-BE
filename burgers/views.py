@@ -2,7 +2,12 @@ from django.shortcuts import render
 from django.db.models import Q
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .serializers import McdonaldSerializer,SetMenuReturnSerializer,DrinkSelectSerializer
+from .serializers import (
+    McdonaldSerializer,
+    SetMenuReturnSerializer,
+    DrinkSelectSerializer,
+    SingleMenuReturnSerializer,
+)
 from .models import Mcdonald
 
 # Create your views here.
@@ -25,9 +30,13 @@ class SetMenuListView(APIView):
         menu_name = request.data["menu_name"]
         menu = Mcdonald.objects.get(menu_name=menu_name)
 
-        serilaized_pets = SetMenuReturnSerializer(menu.set_menus.all(), many=True).data
+        serialized_single = SingleMenuReturnSerializer(menu).data
 
-        return Response(serilaized_pets)
+        serilaized_sets = SetMenuReturnSerializer(menu.set_menus.all(), many=True).data
+
+        return Response(
+            {"single_menus": serialized_single, "set_menus": serilaized_sets}
+        )
 
 
 class SideMenuListView(APIView):
@@ -38,14 +47,23 @@ class SideMenuListView(APIView):
 
         serialized_data = McdonaldSerializer(data, many=True).data
         return Response(serialized_data)
-    
-    
+
+
 class DrinkListView(APIView):
-    
-    def get(self,request):
-        
+    def get(self, request):
         data = Mcdonald.objects.filter(menu_category="음료")
-        
-        serialized_data = DrinkSelectSerializer(data,many=True).data
-        
+
+        serialized_data = DrinkSelectSerializer(data, many=True).data
+
+        return Response(serialized_data)
+
+
+class CategoryFilterView(APIView):
+    def post(self, request):
+        food_category = request.data["food_category"]
+
+        data = Mcdonald.objects.filter(food_category=food_category)
+
+        serialized_data = McdonaldSerializer(data, many=True).data
+
         return Response(serialized_data)
