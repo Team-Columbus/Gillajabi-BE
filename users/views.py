@@ -323,12 +323,13 @@ class SubscribeTestView(APIView):
             return Response({"message": "이미 구독 중입니다."}, status=status.HTTP_200_OK)
         
 
-        subscribe_info = Subscribe.objects.create(
-            is_subscribe=True,
-            sub_start=now,
-            sub_end=now + timezone.timedelta(days=30),
-            user=user,
-        )
+        subscribe_info = Subscribe.objects.get(user=user)
+
+        subscribe_info.is_subscribe=True
+        subscribe_info.sub_start=now
+        subscribe_info.sub_end=now + timezone.timedelta(days=30)
+
+        subscribe_info.save()
 
         return Response({"message" : "완료"})
 
