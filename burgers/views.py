@@ -4,7 +4,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from .serializers import (
     McdonaldSerializer,
-    SetMenuReturnSerializer,
+    DetailMenuReturnSerializer,
     DrinkSelectSerializer,
     SingleMenuReturnSerializer,
     SideMenuReturnSerializer,
@@ -26,18 +26,19 @@ class MenuListView(APIView):
         return Response(serilaizer.data)
 
 
-class SetMenuListView(APIView):
+class DetailMenuListView(APIView):
     def post(self, request):
         menu_name = request.data["menu_name"]
-        menu = Mcdonald.objects.get(menu_name=menu_name)
 
+        menu = Mcdonald.objects.get(menu_name=menu_name)
+        
         serialized_single = SingleMenuReturnSerializer(menu).data
 
-        serilaized_sets = SetMenuReturnSerializer(menu.set_menus.all(), many=True).data
+        serilaized_detail = DetailMenuReturnSerializer(menu.detail_menus.all(), many=True).data
 
         return Response(
-            {"single_menus": serialized_single, "set_menus": serilaized_sets}
-        )
+                {"single_menus": serialized_single, "detail_menus": serilaized_detail})
+
 
 
 class SideMenuListView(APIView):
@@ -67,3 +68,24 @@ class CategoryFilterView(APIView):
         serialized_data = McdonaldSerializer(data, many=True).data
 
         return Response(serialized_data)
+
+class PopularMenuView(APIView):
+    
+    def get(self,request):
+
+        data = Mcdonald.objects.filter(
+            Q(menu_name="불고기 버거") | Q(menu_name="통새우 버거") | Q(menu_name="치즈버거")
+        )
+
+        serialized_data = SingleMenuReturnSerializer(data, many=True).data
+
+        return Response(serialized_data)
+    
+# class MoreGoodWithView(APIView):
+
+#     def post(self,request):
+
+
+
+
+    

@@ -13,14 +13,14 @@ class Mcdonald(models.Model):
     menu_size = models.CharField(
         verbose_name="사이즈", max_length=30, blank=True, null=True
     )
-    is_set = models.BooleanField(verbose_name="세트여부")
+    is_detail = models.BooleanField(verbose_name="디테일여부", default = False)
     is_happy = models.BooleanField(verbose_name="해피스낵여부", default=False)
 
     def __str__(self):
         return self.menu_name
 
 
-class SetMenu(models.Model):
+class DetailMenu(models.Model):
     menu_name = models.CharField(verbose_name="메뉴이름", max_length=30, null=False)
     image = models.URLField(verbose_name="메뉴이미지", max_length=500, null=True)
     price = models.IntegerField(verbose_name="가격")
@@ -29,7 +29,7 @@ class SetMenu(models.Model):
         verbose_name="사이즈", max_length=30, blank=True, null=True
     )
     single_menu = models.ForeignKey(
-        to=Mcdonald, on_delete=models.CASCADE, related_name="set_menus"
+        to=Mcdonald, on_delete=models.CASCADE, related_name="detail_menus"
     )
 
     def __str__(self):

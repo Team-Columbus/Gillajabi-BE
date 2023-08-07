@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Mcdonald, SetMenu
+from .models import Mcdonald, DetailMenu
 
 
 class McdonaldSerializer(serializers.ModelSerializer):
@@ -33,12 +33,12 @@ class DrinkSelectSerializer(McdonaldSerializer):
         fields = ["id", "menu_name", "image", "adjusted_price", "calorie"]
 
 
-class SetMenuBaseSerializer(serializers.ModelSerializer):
+class DetailMenuBaseSerializer(serializers.ModelSerializer):
     class Meta:
-        model = SetMenu
+        model = DetailMenu
         fields = "__all__"
 
 
-class SetMenuReturnSerializer(SetMenuBaseSerializer):
-    class Meta(SetMenuBaseSerializer.Meta):
+class DetailMenuReturnSerializer(DetailMenuBaseSerializer):
+    class Meta(DetailMenuBaseSerializer.Meta):
         fields = ["id", "menu_name", "image", "price", "calorie", "menu_size"]
