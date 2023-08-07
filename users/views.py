@@ -316,8 +316,7 @@ class SubscribeTestView(APIView):
 
         user = User.objects.get(user_id=user_id)
 
-        now = timezone.now()
-
+        now = timezone.localtime()
 
         if Subscribe.objects.filter(user=user, sub_end__gt=now).exists():
             return Response({"message": "이미 구독 중입니다."}, status=status.HTTP_200_OK)
