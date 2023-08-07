@@ -10,6 +10,7 @@ from .serializers import (
     SubscribeBaseSerializer,
 )
 from django.shortcuts import redirect
+from django.utils import timezone
 from django.contrib.auth import get_user_model
 from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import check_password
@@ -308,6 +309,28 @@ def CreateReturnInfo(user, usage=None, access_token=None):
 #     callback_url = KAKAO_CALLBACK_URI
 #     client_class = OAuth2Client
 
+class SubscribeTestView(APIView):
+    def post(self,request):
+
+        user_id = request.data["user_id"]
+
+        user = User.objects.get(user_id=user_id)
+
+        now = timezone.now()
+
+
+        if Subscribe.objects.filter(user=user, sub_end__gt=now).exists():
+            return Response({"message": "이미 구독 중입니다."}, status=status.HTTP_200_OK)
+        
+
+        subscribe_info = Subscribe.objects.create(
+            is_subscribe=True,
+            sub_start=now,
+            sub_end=now + timezone.timedelta(days=30),
+            user=user,
+        )
+
+        return Response({"message" : "완료"})
 
 class TestApiView(APIView):
     def post(self, request):
