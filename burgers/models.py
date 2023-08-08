@@ -31,6 +31,7 @@ class DetailMenu(models.Model):
     single_menu = models.ForeignKey(
         to=Mcdonald, on_delete=models.CASCADE, related_name="detail_menus"
     )
+    menu_category = models.CharField(verbose_name="메뉴카테고리", max_length=30)
 
     def __str__(self):
         return self.menu_name

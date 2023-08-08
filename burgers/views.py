@@ -1,3 +1,4 @@
+import random
 from django.shortcuts import render
 from django.db.models import Q
 from rest_framework.views import APIView
@@ -7,9 +8,12 @@ from .serializers import (
     DetailMenuReturnSerializer,
     DrinkSelectSerializer,
     SingleMenuReturnSerializer,
-    SideMenuReturnSerializer,
+    MediumSideMenuReturnSerializer,
+    LargeSideMenuReturnSerializer,
+    PopularMenuReturnSerilaizer,
+    MoreGoodSerializer,
 )
-from .models import Mcdonald
+from .models import Mcdonald,DetailMenu
 
 # Create your views here.
 
@@ -42,20 +46,37 @@ class DetailMenuListView(APIView):
 
 
 class SideMenuListView(APIView):
-    def get(self, request):
-        data = Mcdonald.objects.filter(
-            Q(menu_name__contains="후라이") | Q(menu_name__contains="코울슬로")
-        )
+    def post(self, request):
 
-        serialized_data = SideMenuReturnSerializer(data, many=True).data
-        return Response(serialized_data)
+        menu_size = request.data["menu_size"]
+        menu_name = "감자 튀김"
+
+
+        potato = DetailMenu.objects.get(menu_name__contains=menu_name, menu_size = menu_size)
+        others = Mcdonald.objects.exclude(Q(menu_name=menu_name) | ~Q(menu_category="사이드"))
+
+
+        serialized_potato = DetailMenuReturnSerializer(potato).data
+        if menu_size == "미디엄":
+            serialized_others = MediumSideMenuReturnSerializer(others, many=True).data
+        elif menu_size == "라지":
+            serialized_others = LargeSideMenuReturnSerializer(others, many=True).data
+
+        response = {
+                "poptato" : serialized_potato,
+                "others" : serialized_others
+            }
+        return Response(response)
 
 
 class DrinkListView(APIView):
-    def get(self, request):
-        data = Mcdonald.objects.filter(menu_category="음료")
+    def post(self, request):
 
-        serialized_data = DrinkSelectSerializer(data, many=True).data
+        menu_size = request.data["menu_size"]
+
+        drinks = DetailMenu.objects.filter(menu_size = menu_size, menu_category = "음료")
+
+        serialized_data = DrinkSelectSerializer(drinks, many=True).data
 
         return Response(serialized_data)
         
@@ -74,16 +95,29 @@ class PopularMenuView(APIView):
     def get(self,request):
 
         data = Mcdonald.objects.filter(
-            Q(menu_name="불고기 버거") | Q(menu_name="통새우 버거") | Q(menu_name="치즈버거")
+            Q(menu_name="불고기 버거") | Q(menu_name="통새우 버거") | Q(menu_name="할라피뇨 치킨 버거")
         )
 
-        serialized_data = SingleMenuReturnSerializer(data, many=True).data
+        serialized_data = PopularMenuReturnSerilaizer(data, many=True).data
 
         return Response(serialized_data)
     
-# class MoreGoodWithView(APIView):
+class MoreGoodWithView(APIView):
 
-#     def post(self,request):
+    def post(self,request):
+        
+        menu_list = request.data["menu_list"]
+
+        other_menus = Mcdonald.objects.filter(Q(menu_category="버거") | Q(menu_category="사이드")).exclude(menu_name__in=menu_list)
+
+
+        random_others = random.sample(list(other_menus), min(3, len(other_menus)))
+
+        serialized_data = MoreGoodSerializer(random_others,many=True).data
+
+        return Response(serialized_data)
+    
+
 
 
 

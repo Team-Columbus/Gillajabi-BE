@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.urls import path, include
-from .views import MenuListView, DetailMenuListView, SideMenuListView, DrinkListView, CategoryFilterView,PopularMenuView
+from .views import MenuListView, DetailMenuListView, SideMenuListView, DrinkListView, CategoryFilterView,PopularMenuView,MoreGoodWithView
 
 
 urlpatterns = [
@@ -10,4 +10,5 @@ urlpatterns = [
     path("detail/", DetailMenuListView.as_view(), name="setmenu"),
     path("select/sidemenu/", SideMenuListView.as_view(), name="sidemenu"),
     path("select/drink/", DrinkListView.as_view(), name="drink"),
+    path("moregood/",MoreGoodWithView.as_view(),name="moregood"),
 ]
