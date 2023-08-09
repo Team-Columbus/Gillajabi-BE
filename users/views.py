@@ -199,39 +199,39 @@ class ProfileUpdateView(APIView):
 #     serializer_class = CustomTokenRefreshSerializer
 
 
-class CustomTokenRefreshView(APIView):
-    def post(self, request):
-        refresh_token = request.COOKIES.get("refresh_token")
-        id = decode_refresh_token(refresh_token)
-        logger.debug(f"사용자가 요청 보낸 사람의 아이디 {id}")
-        access_token = create_access_token(id)
-        return Response({"access": access_token})
+# class CustomTokenRefreshView(APIView):
+#     def post(self, request):
+#         refresh_token = request.COOKIES.get("refresh_token")
+#         id = decode_refresh_token(refresh_token)
+#         logger.debug(f"사용자가 요청 보낸 사람의 아이디 {id}")
+#         access_token = create_access_token(id)
+#         return Response({"access": access_token})
 
 
-# class CustomTokenRefreshView(TokenRefreshView):
-#     def get(self, request):
-#         test = request.COOKIES.get("refresh_token")
+class CustomTokenRefreshView(TokenRefreshView):
+    def get(self, request):
+        test = request.COOKIES.get("refresh_token")
 
-#         try:
-#             refresh_token = RefreshToken(test)
-#             print(refresh_token.verify)
-#             # print(type(refresh_token))
+        try:
+            refresh_token = RefreshToken(test)
+            print(refresh_token.verify)
+            # print(type(refresh_token))
 
-#             access_token = refresh_token.access_token
-#             response = Response(
-#                 {"access": str(access_token)}, status=status.HTTP_200_OK
-#             )
-#             response.set_cookie(
-#                 "refresh_token", str(refresh_token), httponly=True, secure=True
-#             )
-#             payload = jwt.decode(str(access_token), MY_SECRET_KEY, algorithms=["HS256"])
+            access_token = refresh_token.access_token
+            response = Response(
+                {"access": str(access_token)}, status=status.HTTP_200_OK
+            )
+            response.set_cookie(
+                "refresh_token", str(refresh_token), httponly=True, secure=True
+            )
+            payload = jwt.decode(str(access_token), MY_SECRET_KEY, algorithms=["HS256"])
 
-#             logger.debug(f"내가 생성함 : {access_token} 사용자는 이거임 {payload.get('user_id')}")
-#             return response
-#         except Exception as e:
-#             return Response(
-#                 {"message": "리프레시 토큰이 유효하지 않습니다."}, status=status.HTTP_401_UNAUTHORIZED
-#             )
+            logger.debug(f"내가 생성함 : {access_token} 사용자는 이거임 {payload.get('user_id')}")
+            return response
+        except Exception as e:
+            return Response(
+                {"message": "리프레시 토큰이 유효하지 않습니다."}, status=status.HTTP_401_UNAUTHORIZED
+            )
 
 
 # class TokenValidateView(APIView):
