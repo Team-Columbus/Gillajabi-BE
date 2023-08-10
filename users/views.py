@@ -211,7 +211,7 @@ class ProfileUpdateView(APIView):
 class CustomTokenRefreshView(TokenRefreshView):
     def get(self, request):
         test = request.COOKIES.get("refresh_token")
-
+        print(test)
         try:
             refresh_token = RefreshToken(test)
             print(refresh_token.verify)
