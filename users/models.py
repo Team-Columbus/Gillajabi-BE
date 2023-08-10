@@ -29,7 +29,7 @@ class User(AbstractBaseUser):
         unique=True, verbose_name="아이디", max_length=30, null=False, blank=False
     )
     password = models.CharField(
-        verbose_name="비밀번호", max_length=30, null=False, blank=False
+        verbose_name="비밀번호", max_length=300, null=False, blank=False
     )
 
     name = models.CharField(verbose_name="이름", max_length=30, default="")
