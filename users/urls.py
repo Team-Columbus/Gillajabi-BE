@@ -13,6 +13,7 @@ from users.views import (
     TokenValidateView,
     CustomTokenRefreshView,
     TestApiView,
+    SubscribeTestView,
     # KakaoCallbackView,
     # KakaoLogin,
     # KakaoLoginView
@@ -33,6 +34,7 @@ urlpatterns = [
     path("id/<str:user_id>/exist/", CheckIdExistView.as_view(), name="exist-check"),
     path("password/verify/", UserVerifyView.as_view(), name="user-verify"),
     path("password/reset/", ResetPasswordView.as_view(), name="password-reset"),
+    path("subscribe/test/",SubscribeTestView.as_view(), name="subscribe"),
     # path('kakao/login/', KakaoLoginView.as_view(), name='kakao_login'),
     # path('kakao/callback/', KakaoCallbackView.as_view(), name='kakao_callback'),
     # path('kakao/login/finish/', KakaoLogin.as_view(), name='kakao_login_todjango'),

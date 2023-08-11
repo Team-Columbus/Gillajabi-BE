@@ -10,6 +10,7 @@ from .serializers import (
     SubscribeBaseSerializer,
 )
 from django.shortcuts import redirect
+from django.utils import timezone
 from django.contrib.auth import get_user_model
 from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import check_password
@@ -92,7 +93,9 @@ class SignupView(APIView):
                 user_id=user_id, password=password, name=name, birth=my_birth
             )
             Subscribe.objects.create(user=user)
-            return Response({"message": "회원가입 완료"}, status=status.HTTP_201_CREATED)
+            
+            response = CreateReturnInfo(user, "회원가입")
+            return response
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -196,39 +199,39 @@ class ProfileUpdateView(APIView):
 #     serializer_class = CustomTokenRefreshSerializer
 
 
-class CustomTokenRefreshView(APIView):
-    def post(self, request):
-        refresh_token = request.COOKIES.get("refresh_token")
-        id = decode_refresh_token(refresh_token)
-        logger.debug(f"사용자가 요청 보낸 사람의 아이디 {id}")
-        access_token = create_access_token(id)
-        return Response({"access": access_token})
+# class CustomTokenRefreshView(APIView):
+#     def post(self, request):
+#         refresh_token = request.COOKIES.get("refresh_token")
+#         id = decode_refresh_token(refresh_token)
+#         logger.debug(f"사용자가 요청 보낸 사람의 아이디 {id}")
+#         access_token = create_access_token(id)
+#         return Response({"access": access_token})
 
 
-# class CustomTokenRefreshView(TokenRefreshView):
-#     def get(self, request):
-#         test = request.COOKIES.get("refresh_token")
+class CustomTokenRefreshView(TokenRefreshView):
+    def get(self, request):
+        test = request.COOKIES.get("refresh_token")
+        print(test)
+        try:
+            refresh_token = RefreshToken(test)
+            print(refresh_token.verify)
+            # print(type(refresh_token))
 
-#         try:
-#             refresh_token = RefreshToken(test)
-#             print(refresh_token.verify)
-#             # print(type(refresh_token))
+            access_token = refresh_token.access_token
+            response = Response(
+                {"access": str(access_token)}, status=status.HTTP_200_OK
+            )
+            response.set_cookie(
+                "refresh_token", str(refresh_token), httponly=True, secure=True
+            )
+            payload = jwt.decode(str(access_token), MY_SECRET_KEY, algorithms=["HS256"])
 
-#             access_token = refresh_token.access_token
-#             response = Response(
-#                 {"access": str(access_token)}, status=status.HTTP_200_OK
-#             )
-#             response.set_cookie(
-#                 "refresh_token", str(refresh_token), httponly=True, secure=True
-#             )
-#             payload = jwt.decode(str(access_token), MY_SECRET_KEY, algorithms=["HS256"])
-
-#             logger.debug(f"내가 생성함 : {access_token} 사용자는 이거임 {payload.get('user_id')}")
-#             return response
-#         except Exception as e:
-#             return Response(
-#                 {"message": "리프레시 토큰이 유효하지 않습니다."}, status=status.HTTP_401_UNAUTHORIZED
-#             )
+            logger.debug(f"내가 생성함 : {access_token} 사용자는 이거임 {payload.get('user_id')}")
+            return response
+        except Exception as e:
+            return Response(
+                {"message": "리프레시 토큰이 유효하지 않습니다."}, status=status.HTTP_401_UNAUTHORIZED
+            )
 
 
 # class TokenValidateView(APIView):
@@ -294,6 +297,9 @@ def CreateReturnInfo(user, usage=None, access_token=None):
         response.data["access_token"] = access_token
     elif usage == "유효성":
         response.data["isvalid"] = True
+    elif usage == "회원가입":
+        response.data["message"] = "회원가입 성공"
+        response.status_code = status.HTTP_201_CREATED
 
     return response
 
@@ -303,6 +309,32 @@ def CreateReturnInfo(user, usage=None, access_token=None):
 #     callback_url = KAKAO_CALLBACK_URI
 #     client_class = OAuth2Client
 
+class SubscribeTestView(APIView):
+    def post(self,request):
+
+        user_id = request.data["user_id"]
+
+        user = User.objects.get(user_id=user_id)
+
+        now = timezone.now().date()
+
+        
+        if Subscribe.objects.filter(user=user, sub_end__gt=now).exists():
+            return Response({"message": "이미 구독 중입니다."}, status=status.HTTP_200_OK)
+        
+
+        subscribe_info = Subscribe.objects.get(user=user)
+
+        subscribe_info.is_subscribe=True
+        subscribe_info.sub_start=now
+        subscribe_info.sub_end=now + timezone.timedelta(days=30)
+
+        print(subscribe_info.sub_start)
+        print(subscribe_info.sub_end)
+
+        subscribe_info.save()
+
+        return Response({"message" : "완료"})
 
 class TestApiView(APIView):
     def post(self, request):
