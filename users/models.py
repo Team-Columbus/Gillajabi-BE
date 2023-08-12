@@ -29,7 +29,7 @@ class User(AbstractBaseUser):
         unique=True, verbose_name="아이디", max_length=30, null=False, blank=False
     )
     password = models.CharField(
-        verbose_name="비밀번호", max_length=30, null=False, blank=False
+        verbose_name="비밀번호", max_length=300, null=False, blank=False
     )
 
     name = models.CharField(verbose_name="이름", max_length=30, default="")
@@ -55,8 +55,8 @@ class User(AbstractBaseUser):
 class Subscribe(models.Model):
     
     is_subscribe = models.BooleanField(verbose_name="구독여부",default=False)
-    sub_start = models.DateTimeField(verbose_name="구독시작날짜",null=True, blank=True, default=None)
-    sub_end = models.DateTimeField(verbose_name="구독만료날짜",null=True, blank=True, default=None)
+    sub_start = models.DateField(verbose_name="구독시작날짜",null=True, blank=True, default=None)
+    sub_end = models.DateField(verbose_name="구독만료날짜",null=True, blank=True, default=None)
     user = models.ForeignKey(to=User, on_delete=models.CASCADE, related_name="subscribe")
     
     def __str__(self):
