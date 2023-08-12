@@ -6,13 +6,10 @@ from datetime import datetime
 from .serializers import (
     UserBaseSerializer,
     MyTokenObtainPairSerializer,
-    UserInfoReturnSerializer,
-    SubscribeBaseSerializer,
 )
-from django.shortcuts import redirect
+
 from django.utils import timezone
 from django.contrib.auth import get_user_model
-from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import check_password
 from rest_framework.views import APIView
 from rest_framework.authentication import get_authorization_header
@@ -22,11 +19,10 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.exceptions import AuthenticationFailed
 from rest_framework_simplejwt.views import TokenRefreshView
-from dj_rest_auth.registration.views import SocialLoginView
-from allauth.socialaccount.providers.kakao import views as kakao_view
-from allauth.socialaccount.providers.oauth2.client import OAuth2Client
+# from dj_rest_auth.registration.views import SocialLoginView
+# from allauth.socialaccount.providers.kakao import views as kakao_view
+# from allauth.socialaccount.providers.oauth2.client import OAuth2Client
 from .models import Subscribe
 
 from mysettings import (
