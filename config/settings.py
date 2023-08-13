@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     "burgers",
     "theaters",
     "quests",
+    "traffics",
     "rest_framework",
     "rest_framework.authtoken",
     "rest_framework_simplejwt",
@@ -175,6 +176,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 SIMPLE_JWT = {
     # Access 토큰 유효 시간 설정하기
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
 }
 
 LOGGING = {
