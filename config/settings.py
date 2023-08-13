@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "django.contrib.sites",
     "users",
     "theaters",
+    "traffics",
     # "burgers",
     "rest_framework",
     "rest_framework.authtoken",
