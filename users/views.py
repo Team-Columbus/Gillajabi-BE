@@ -147,20 +147,12 @@ class ProfileDetailView(APIView):
         token = auth_header.decode("utf-8").split()[1]
         payload = jwt.decode(token, MY_SECRET_KEY, algorithms=["HS256"])
 
-        # 사용자 정보 확인
         payload_id = payload.get("user_id")
-
-        # print(user_id)
-        # print(f"user_name은 {payload.get('username')}")
-        # payload = jwt.decode(token, "SECRET_KEY", algorithms=["HS256"])
-
-        logger.debug(f"사용자가 요청 보냄: {request.user}는 {request.user.is_authenticated}")
-        logger.debug(f"해당 사용자의 정보 {payload_id}, {token}")
 
         if user_id:
             user = User.objects.get(user_id=user_id)
 
-            response = CreateReturnInfo(user, "유효성")
+            response = CreateReturnInfo(user, "세부사항")
             return response
         else:
             return Response(
@@ -178,10 +170,9 @@ class ProfileUpdateView(APIView):
             user = User.objects.get(user_id=user_id)
 
             edit_name = request.data["edit_name"]
-            # edit_birth = datetime.strptime(request.data["edit_birth"], "%Y%m%d").date()
 
             user.name = edit_name
-            # user.birth = edit_birth
+            
             user.save()
 
             return Response({"message": "수정 완료"}, status=status.HTTP_200_OK)
@@ -291,11 +282,11 @@ def CreateReturnInfo(user, usage=None, access_token=None):
     if usage == "로그인":
         response.data["meesage"] = "로그인 성공"
         response.data["access_token"] = access_token
-    elif usage == "유효성":
-        response.data["isvalid"] = True
     elif usage == "회원가입":
         response.data["message"] = "회원가입 성공"
         response.status_code = status.HTTP_201_CREATED
+    else:
+        response.data["isvalid"] = True
 
     return response
 
