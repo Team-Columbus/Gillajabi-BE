@@ -66,7 +66,7 @@ class LoginView(APIView):
             refresh_token = str(token)
             access_token = str(token.access_token)
 
-            response = CreateReturnInfo(user, "로그인", access_token)
+            response = CreateReturnInfo(user, "로그인", access_token,refresh_token)
 
             response.set_cookie("refresh_token", refresh_token, httponly=True)
             return response
@@ -195,30 +195,30 @@ class ProfileUpdateView(APIView):
 #         return Response({"access": access_token})
 
 
-class CustomTokenRefreshView(TokenRefreshView):
-    def get(self, request):
-        test = request.COOKIES.get("refresh_token")
-        print(test)
-        try:
-            refresh_token = RefreshToken(test)
-            print(refresh_token.verify)
-            # print(type(refresh_token))
+# class CustomTokenRefreshView(TokenRefreshView):
+#     def get(self, request):
+#         test = request.COOKIES.get("refresh_token")
+#         print(test)
+#         try:
+#             refresh_token = RefreshToken(test)
+#             print(refresh_token.verify)
+#             # print(type(refresh_token))
 
-            access_token = refresh_token.access_token
-            response = Response(
-                {"access": str(access_token)}, status=status.HTTP_200_OK
-            )
-            response.set_cookie(
-                "refresh_token", str(refresh_token), httponly=True, secure=True
-            )
-            payload = jwt.decode(str(access_token), MY_SECRET_KEY, algorithms=["HS256"])
+#             access_token = refresh_token.access_token
+#             response = Response(
+#                 {"access": str(access_token)}, status=status.HTTP_200_OK
+#             )
+#             response.set_cookie(
+#                 "refresh_token", str(refresh_token), httponly=True, secure=True
+#             )
+#             payload = jwt.decode(str(access_token), MY_SECRET_KEY, algorithms=["HS256"])
 
-            logger.debug(f"내가 생성함 : {access_token} 사용자는 이거임 {payload.get('user_id')}")
-            return response
-        except Exception as e:
-            return Response(
-                {"message": "리프레시 토큰이 유효하지 않습니다."}, status=status.HTTP_401_UNAUTHORIZED
-            )
+#             logger.debug(f"내가 생성함 : {access_token} 사용자는 이거임 {payload.get('user_id')}")
+#             return response
+#         except Exception as e:
+#             return Response(
+#                 {"message": "리프레시 토큰이 유효하지 않습니다."}, status=status.HTTP_401_UNAUTHORIZED
+#             )
 
 
 # class TokenValidateView(APIView):
@@ -264,7 +264,7 @@ class TokenValidateView(APIView):
             )
 
 
-def CreateReturnInfo(user, usage=None, access_token=None):
+def CreateReturnInfo(user, usage=None, access_token=None, refresh_token = None):
     sub_info = user.subscribe.all()[0]
     response = Response(
         {
@@ -282,6 +282,7 @@ def CreateReturnInfo(user, usage=None, access_token=None):
     if usage == "로그인":
         response.data["meesage"] = "로그인 성공"
         response.data["access_token"] = access_token
+        response.data["refresh_token"] = refresh_token
     elif usage == "회원가입":
         response.data["message"] = "회원가입 성공"
         response.status_code = status.HTTP_201_CREATED
