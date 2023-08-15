@@ -8,6 +8,7 @@ from theaters.models import CGVMovie, Detail
 from django.contrib.auth import get_user_model
 from quests.models import Quest
 from burgers.models import Mcdonald, DetailMenu
+from traffics.models import Train, Bus
 from mysettings import MY_SECRET_KEY
 from .serializers import QuestReturnSerializer
 
@@ -60,11 +61,9 @@ class CheckQuestAnswerView(APIView):
 
 
 def generate_quest():
-    # categories = ["패스트푸드","영화관","교통"]
+    categories = ["패스트푸드", "영화관", "교통"]
 
-    # choice_category = random.choice(categories)
-    choice_category = "패스트푸드"
-    # choice_category = "영화관"
+    choice_category = random.choice(categories)
 
     if choice_category == "패스트푸드":
         menu_options = ["단품", "세트"]
@@ -135,5 +134,64 @@ def generate_quest():
         }
 
         return quest
-    elif choice_category == "고통":
-        pass
+    elif choice_category == "교통":
+        transportation_list = ["버스", "기차"]
+
+        choice_transportation = random.choice(transportation_list)
+
+        if choice_transportation == "버스":
+            start_terminals = Bus.objects.values_list(
+                "start_terminal", flat=True
+            ).distinct()
+
+            choice_start_terminal = random.choice(start_terminals)
+
+            possible_arrive_terminals = Bus.objects.filter(
+                start_terminal=choice_start_terminal
+            ).values_list("arrive_terminal", flat=True)
+
+            choice_arrive_terminal = random.choice(possible_arrive_terminals)
+
+            choice_start_time = random.choice(
+                Bus.objects.filter(
+                    start_terminal=choice_start_terminal,
+                    arrive_terminal=choice_arrive_terminal,
+                ).values_list("start_time", flat=True)
+            )
+
+            quest = {
+                "category": choice_category,
+                "transportation": choice_transportation,
+                "start_terminal": choice_start_terminal,
+                "arrive_terminal": choice_arrive_terminal,
+                "start_time": choice_start_time,
+            }
+            return quest
+        else:
+            start_station = Train.objects.values_list(
+                "start_station", flat=True
+            ).distinct()
+
+            choice_start_station = random.choice(start_station)
+
+            possible_arrive_stations = Train.objects.filter(
+                start_station=choice_start_station
+            ).values_list("arrive_station", flat=True)
+
+            choice_arrive_station = random.choice(possible_arrive_stations)
+
+            choice_start_time = random.choice(
+                Train.objects.filter(
+                    start_station=choice_start_station,
+                    arrive_station=choice_arrive_station,
+                ).values_list("start_time", flat=True)
+            )
+
+            quest = {
+                "category": choice_category,
+                "transportation": choice_transportation,
+                "start_terminal": choice_start_station,
+                "arrive_terminal": choice_arrive_station,
+                "start_time": choice_start_time,
+            }
+            return quest
