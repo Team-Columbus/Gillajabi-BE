@@ -3,7 +3,7 @@ Description=uWSGI service
 After=syslog.target
 
 [Service]
-ExecStart=/home/ubuntu/PP_Backend/ppenv/bin/uwsgi -i /home/ubuntu/PP_Backend/nginxtest/Gillajabi-BE/.config/uwsgi/mysite.ini
+ExecStart=/home/ubuntu/PP_Backend/ppenv/bin/uwsgi -i /home/ubuntu/PP_Backend/Gillajabi-BE/.config/uwsgi/mysite.ini
 
 Restart=always
 KillSignal=SIGQUIT
