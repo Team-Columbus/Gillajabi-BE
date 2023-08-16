@@ -20,35 +20,32 @@ User = get_user_model()
 
 class GetQuestView(APIView):
     permission_classes = [IsAuthenticated]
-    def get(self,request):
 
+    def get(self, request):
         try:
             user_id = request.user
 
-            user = User.objects.get(user_id = user_id)
+            user = User.objects.get(user_id=user_id)
 
             exist_quest = user_id.quest
 
-
             response = {
                 "content": exist_quest.content,
-                "is_accept" : exist_quest.is_accept,
-                "is_do"  : user.is_quest_do
+                "is_accept": exist_quest.is_accept,
+                "is_do": user.is_quest_do,
             }
             return Response(response)
         except Quest.DoesNotExist:
-            response = {
-                "content":{},
-                "is_accept":False,
-                "is_do" : False
-            }
+            response = {"content": {}, "is_accept": False, "is_do": False}
             return Response(response)
-        
+
+
 class QuestProvideView(APIView):
     permission_classes = [IsAuthenticated]
 
     def generate_quest(self):
-        categories = ["패스트푸드", "영화관", "교통"]
+        # categories = ["패스트푸드", "영화관", "교통"]
+        categories = ["영화관", "교통"]
 
         choice_category = random.choice(categories)
 
@@ -182,39 +179,37 @@ class QuestProvideView(APIView):
                     "start_time": choice_start_time,
                 }
                 return quest
-    def create_and_assign_quest(self,user_id):
-            user = User.objects.get(user_id=user_id)
-            quest = self.generate_quest()
 
-            quest_object = Quest.objects.create(
-                content=quest, user=user, is_accept=True
-            )
-            
-            response = {
-                "content":quest_object.content,
-                "is_accept":quest_object.is_accept,
-                "is_do" : user.is_quest_do
-            }
-            return response
-    
+    def create_and_assign_quest(self, user_id):
+        user = User.objects.get(user_id=user_id)
+        quest = self.generate_quest()
+
+        quest_object = Quest.objects.create(content=quest, user=user, is_accept=True)
+
+        response = {
+            "content": quest_object.content,
+            "is_accept": quest_object.is_accept,
+            "is_do": user.is_quest_do,
+        }
+        return response
+
     def get(self, request):
         try:
             user_id = request.user
             exist_quest = user_id.quest
-            
-            if exist_quest :
+
+            if exist_quest:
                 exist_quest.delete()
 
             response = self.create_and_assign_quest(user_id)
 
             return Response(response)
-        
+
         except Quest.DoesNotExist:
             user_id = request.user
             response = self.create_and_assign_quest(user_id)
 
             return Response(response)
-
 
 
 class CheckQuestAnswerView(APIView):
@@ -238,5 +233,3 @@ class CheckQuestAnswerView(APIView):
                 return Response({"result": False})
         except ExpiredSignatureError:
             return Response({"message": "토큰 만료됨"}, status=status.HTTP_401_UNAUTHORIZED)
-
-
