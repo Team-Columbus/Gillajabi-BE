@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "django.contrib.sites",
     
     "users",
+    "coffee_api",
     
     "rest_framework",
     "rest_framework.authtoken",
