@@ -35,6 +35,8 @@ class User(AbstractBaseUser):
     name = models.CharField(verbose_name="이름", max_length=30, default="")
     birth = models.DateField(verbose_name="생일", max_length=30, null=True, blank=True)
 
+    is_quest_do = models.BooleanField(verbose_name="퀘스트수행여부",default = False)
+
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
 

@@ -54,17 +54,20 @@ class LoginView(APIView):
         password = request.data["password"]
 
         user = User.objects.filter(user_id=user_id).first()
-
+        
         if user is None or not check_password(password, user.password):
             return Response(
                 {"message": "아이디 또는 비밀번호가 올바르지 않습니다"},
                 status=status.HTTP_401_UNAUTHORIZED,
             )
-
+        
         if user is not None:
             token = TokenObtainPairSerializer.get_token(user)
             refresh_token = str(token)
             access_token = str(token.access_token)
+
+
+            print(refresh_token, access_token)
 
             response = CreateReturnInfo(user, "로그인", access_token,refresh_token)
 
