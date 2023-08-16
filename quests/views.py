@@ -197,7 +197,7 @@ class QuestProvideView(APIView):
             }
             return response
     
-    def post(self, request):
+    def get(self, request):
         try:
             user_id = request.user
             exist_quest = user_id.quest
