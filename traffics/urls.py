@@ -10,7 +10,7 @@ urlpatterns = [
     path('train_ticket/', views.get_train_ticket, name='train_ticket'),
 
     # 버스 urls
-    path('start_bus_list/', views.get_start_bus_list, name='start_bus_list'),
+#    path('start_bus_list/', views.get_start_bus_list, name='start_bus_list'),
     path('arrive_bus_list/', views.get_arrive_bus_list, name='arrive_bus_list'),
 #    path('search_arrive_bus/', views.SearchArriveTerminal.as_view(), name='search_arrive_bus'),    
     path('bus_ticket/', views.get_terminal_ticket, name='bus_ticket'),
