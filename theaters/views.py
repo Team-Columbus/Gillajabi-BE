@@ -17,12 +17,14 @@ def get_top_movies(request):
             title = movie.title
             rating = movie.rating
             poster = movie.movie_poster
+            id = movie.detail.first().id
             seat_number = movie.detail.first().seat_number
             max_seat = movie.detail.first().max_seat
             start_time = movie.detail.first().start_time
             end_time = movie.detail.first().end_time
 
         movie_data = {
+            "id": id,
             "title": title,
             "rating": rating,
             "poster": poster,
