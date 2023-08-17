@@ -64,3 +64,8 @@ class Subscribe(models.Model):
     def __str__(self):
         return self.is_subscribe
     
+
+class TempStorage(models.Model):
+
+    content = models.JSONField(verbose_name="내용",max_length=300, null = True, blank= True)
+    user = models.OneToOneField(to = User, on_delete=models.CASCADE, related_name="storage")
