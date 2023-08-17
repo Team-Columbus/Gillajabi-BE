@@ -18,29 +18,45 @@ from .serializers import QuestReturnSerializer
 User = get_user_model()
 
 
-class GetQuestView(APIView):
+# class GetQuestView(APIView):
+#     permission_classes = [IsAuthenticated]
+
+#     def get(self, request):
+#         try:
+#             user_id = request.user
+
+#             user = User.objects.get(user_id=user_id)
+
+#             exist_quest = user_id.quest
+
+#             response = {
+#                 "content": exist_quest.content,
+#                 "is_accept": exist_quest.is_accept,
+#                 "is_do": user.is_quest_do,
+#             }
+#             return Response(response)
+#         except Quest.DoesNotExist:
+#             response = {"content": {}, "is_accept": False, "is_do": False}
+#             return Response(response)
+
+
+class QuestAcceptView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        try:
-            user_id = request.user
+        user_id = request.user
+        exist_quest = user_id.quest
 
-            user = User.objects.get(user_id=user_id)
+        if exist_quest:
+            exist_quest.is_accept = True
+            exist_quest.save()
 
-            exist_quest = user_id.quest
-
-            response = {
-                "content": exist_quest.content,
-                "is_accept": exist_quest.is_accept,
-                "is_do": user.is_quest_do,
-            }
-            return Response(response)
-        except Quest.DoesNotExist:
-            response = {"content": {}, "is_accept": False, "is_do": False}
-            return Response(response)
+        return Response({"message": "수락완료"})
+    
+    
 
 
-class QuestProvideView(APIView):
+class GetQuestView(APIView):
     permission_classes = [IsAuthenticated]
 
     def generate_quest(self):
@@ -184,7 +200,8 @@ class QuestProvideView(APIView):
         user = User.objects.get(user_id=user_id)
         quest = self.generate_quest()
 
-        quest_object = Quest.objects.create(content=quest, user=user, is_accept=True)
+        # quest_object = Quest.objects.create(content=quest, user=user, is_accept=True)
+        quest_object = Quest.objects.create(content=quest, user=user)
 
         response = {
             "content": quest_object.content,
@@ -198,10 +215,16 @@ class QuestProvideView(APIView):
             user_id = request.user
             exist_quest = user_id.quest
 
-            if exist_quest:
-                exist_quest.delete()
+            # if exist_quest:
+            #     exist_quest.delete()
 
-            response = self.create_and_assign_quest(user_id)
+            if exist_quest:
+                user = User.objects.get(user_id=user_id)
+                response = {
+                    "content": exist_quest.content,
+                    "is_accept": exist_quest.is_accept,
+                    "is_do": user.is_quest_do,
+                }
 
             return Response(response)
 

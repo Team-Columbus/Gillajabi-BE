@@ -1,8 +1,9 @@
 from django.contrib import admin
 from django.urls import path, include
-from .views import QuestProvideView,CheckQuestAnswerView,GetQuestView
+from .views import GetQuestView, CheckQuestAnswerView, GetQuestView, QuestAcceptView
+
 urlpatterns = [
-    path("", GetQuestView.as_view(), name = "quest-get"),
-    path("accept/", QuestProvideView.as_view(), name="quest-provide"),
-    path("check/",CheckQuestAnswerView.as_view(), name="quest-check")
+    path("", GetQuestView.as_view(), name="quest-bring"),
+    path("accept/", QuestAcceptView.as_view(), name="quest-accept"),
+    path("check/", CheckQuestAnswerView.as_view(), name="quest-check"),
 ]
