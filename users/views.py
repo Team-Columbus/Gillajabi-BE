@@ -12,31 +12,22 @@ from django.utils import timezone
 from django.contrib.auth import get_user_model
 from django.contrib.auth.hashers import check_password
 from rest_framework.views import APIView
-from rest_framework.authentication import get_authorization_header
-from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from rest_framework_simplejwt.views import TokenRefreshView
+
 # from dj_rest_auth.registration.views import SocialLoginView
 # from allauth.socialaccount.providers.kakao import views as kakao_view
 # from allauth.socialaccount.providers.oauth2.client import OAuth2Client
-from .models import Subscribe
+from .models import Subscribe, TempStorage
 
 from mysettings import (
-    MY_SECRET_KEY,
-    MY_BASE_URL,
-    MY_SOCIAL_AUTH_KAKAO_CLIENT_ID,
-    MY_SOCIAL_AUTH_KAKAO_SECRET,
+    MY_BASE_URL
 )
 from .authenticate import (
-    CustomJWTAuthentication,
-    decode_access_token,
-    decode_refresh_token,
-    create_access_token,
-    create_refresh_token,
+    CustomJWTAuthentication
 )
 
 User = get_user_model()
@@ -133,24 +124,12 @@ class ResetPasswordView(APIView):
         return Response({"message": "유저를 찾을 수 없습니다"}, status=status.HTTP_404_NOT_FOUND)
 
 
-# class KakaoLoginView(APIView):
-#     def get(self, request):
-#         return redirect(
-#             f"https://kauth.kakao.com/oauth/authorize?client_id={MY_SOCIAL_AUTH_KAKAO_CLIENT_ID}&redirect_uri={KAKAO_CALLBACK_URI}&response_type=code&scope=account_email"
-#         )
-
 
 class ProfileDetailView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
         user_id = request.user
-
-        auth_header = get_authorization_header(request)
-        token = auth_header.decode("utf-8").split()[1]
-        payload = jwt.decode(token, MY_SECRET_KEY, algorithms=["HS256"])
-
-        payload_id = payload.get("user_id")
 
         if user_id:
             user = User.objects.get(user_id=user_id)
@@ -183,75 +162,6 @@ class ProfileUpdateView(APIView):
             return Response(
                 {"message": "인증되지 않은 사용자입니다."}, status=status.HTTP_401_UNAUTHORIZED
             )
-
-
-# class CustomTokenRefreshView(TokenRefreshView):
-#     serializer_class = CustomTokenRefreshSerializer
-
-
-# class CustomTokenRefreshView(APIView):
-#     def post(self, request):
-#         refresh_token = request.COOKIES.get("refresh_token")
-#         id = decode_refresh_token(refresh_token)
-#         logger.debug(f"사용자가 요청 보낸 사람의 아이디 {id}")
-#         access_token = create_access_token(id)
-#         return Response({"access": access_token})
-
-
-# class CustomTokenRefreshView(TokenRefreshView):
-#     def get(self, request):
-#         test = request.COOKIES.get("refresh_token")
-#         print(test)
-#         try:
-#             refresh_token = RefreshToken(test)
-#             print(refresh_token.verify)
-#             # print(type(refresh_token))
-
-#             access_token = refresh_token.access_token
-#             response = Response(
-#                 {"access": str(access_token)}, status=status.HTTP_200_OK
-#             )
-#             response.set_cookie(
-#                 "refresh_token", str(refresh_token), httponly=True, secure=True
-#             )
-#             payload = jwt.decode(str(access_token), MY_SECRET_KEY, algorithms=["HS256"])
-
-#             logger.debug(f"내가 생성함 : {access_token} 사용자는 이거임 {payload.get('user_id')}")
-#             return response
-#         except Exception as e:
-#             return Response(
-#                 {"message": "리프레시 토큰이 유효하지 않습니다."}, status=status.HTTP_401_UNAUTHORIZED
-#             )
-
-
-# class TokenValidateView(APIView):
-#     authentication_classes = [CustomJWTAuthentication]
-
-#     def get(self, request):
-#         auth_header = get_authorization_header(request)
-#         token = auth_header.decode("utf-8").split()[1]
-#         payload = jwt.decode(token, MY_SECRET_KEY, algorithms=["HS256"])
-
-#         # 사용자 정보 확인
-#         user_id = payload.get("user_id")
-
-#         # print(user_id)
-#         # print(f"user_name은 {payload.get('username')}")
-#         # payload = jwt.decode(token, "SECRET_KEY", algorithms=["HS256"])
-
-#         logger.debug(f"사용자가 요청 보냄: {request.user}는 {request.user.is_authenticated}")
-#         logger.debug(f"해당 사용자의 정보 {user_id}, {token}")
-#         # print(f"이런 이걸 봐라 {request.user} 는 {request.headers['Authorization']}를 가지고 {request.user.is_authenticated}")
-#         # print(f"이건 뭔데 {request}")
-#         if request.user is not None and request.user.is_authenticated:
-#             response = CreateReturnInfo(request.user, "유효성")
-#             return response
-#         else:
-#             return Response(
-#                 {"user": {}, "isvalid": False}, status=status.HTTP_401_UNAUTHORIZED
-#             )
-
-
 class TokenValidateView(APIView):
     authentication_classes = [CustomJWTAuthentication]
 
@@ -295,10 +205,7 @@ def CreateReturnInfo(user, usage=None, access_token=None, refresh_token = None):
     return response
 
 
-# class KakaoLogin(SocialLoginView):
-#     adapter_class = kakao_view.KakaoOAuth2Adapter
-#     callback_url = KAKAO_CALLBACK_URI
-#     client_class = OAuth2Client
+
 
 class SubscribeTestView(APIView):
     def post(self,request):
@@ -320,31 +227,66 @@ class SubscribeTestView(APIView):
         subscribe_info.sub_start=now
         subscribe_info.sub_end=now + timezone.timedelta(days=30)
 
-        print(subscribe_info.sub_start)
-        print(subscribe_info.sub_end)
-
         subscribe_info.save()
 
         return Response({"message" : "완료"})
 
-class TestApiView(APIView):
-    def post(self, request):
-        token = request.data["access"]
 
-        print(type(token))
-        # 사용자 정보 확인
+class TemporarySaveView(APIView):
+    permission_classes = [IsAuthenticated]
+    def post(self,request):
+        try:
+            user_id = request.user
+            user = User.objects.get(user_id = user_id)
+            data = request.data["data"]
 
-        payload = jwt.decode(token, MY_SECRET_KEY, algorithms=["HS256"])
+            temp_save = user_id.storage
+                
+            if temp_save:
+                temp_save.delete()
+                
+            TempStorage.objects.create(content = data, user = user)
+            return Response({"result" : True})
+        except TempStorage.DoesNotExist:
+            TempStorage.objects.create(content = data, user = user)
+            return Response({"result" : True})            
+        
+            
+    
 
-        user_id = payload.get("user_id")
-        # logger.debug(f"사용자가 요청 보냄: {request.user}는 {request.user.is_authenticated}")
-        logger.debug(f"해당 사용자의 정보 {user_id}, {token}")
+class GetTemporarySaveView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request):
+        try:
+            user_id = request.user
 
-        print(f"해당 사용자의 정보 {user_id}, {token}")
+            user = User.objects.get(user_id = user_id)
 
-        return Response({"message": "1231231"})
-        # print(f"이런 이걸 봐라 {request.user} 는 {request.headers['Authorization']}를 가지고 {request.user.is_authenticated}")
-        # print(f"이건 뭔데 {request}")
+            temp_save = TempStorage.objects.get(user = user)
+            response = {
+                "data" : temp_save.content
+            }
+            return Response(response)
+        except TempStorage.DoesNotExist:
+            response = {
+                "data" : {}
+            }
+            return Response(response)
+    
+    
+# class KakaoLoginView(APIView):
+#     def get(self, request):
+#         return redirect(
+#             f"https://kauth.kakao.com/oauth/authorize?client_id={MY_SOCIAL_AUTH_KAKAO_CLIENT_ID}&redirect_uri={KAKAO_CALLBACK_URI}&response_type=code&scope=account_email"
+#         )
+
+
+# class KakaoLogin(SocialLoginView):
+#     adapter_class = kakao_view.KakaoOAuth2Adapter
+#     callback_url = KAKAO_CALLBACK_URI
+#     client_class = OAuth2Client
+
 
 
 # class KakaoCallbackView(APIView):
