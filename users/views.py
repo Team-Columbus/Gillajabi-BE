@@ -172,7 +172,6 @@ class TokenValidateView(APIView):
 
     def get(self, request):
 
-        logger.debug(f"사용자가 요청 보냄: {request.user}")
         if request.user is not None and request.user.is_authenticated:
             response = CreateReturnInfo(request.user, "유효성")
             return response
@@ -204,6 +203,9 @@ def CreateReturnInfo(user, usage=None, access_token=None, refresh_token = None):
     elif usage == "회원가입":
         response.data["message"] = "회원가입 성공"
         response.status_code = status.HTTP_201_CREATED
+    elif usage == "유효성":
+        response.data["isvalid"] = True
+        response.data["is_accept"] = user.quest.is_accept
     else:
         response.data["isvalid"] = True
 
