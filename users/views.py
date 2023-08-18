@@ -82,7 +82,12 @@ class SignupView(APIView):
             user = User.objects.create_user(
                 user_id=user_id, password=password, name=name, birth=my_birth
             )
-            Subscribe.objects.create(user=user)
+            now = timezone.now().date()
+            sub_start = now
+            sub_end = now+timezone.timedelta(days=30)
+
+            Subscribe.objects.create(user=user,is_subscribe = True, sub_start = sub_start, sub_end = sub_end)
+
             
             response = CreateReturnInfo(user, "회원가입")
             return response
