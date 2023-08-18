@@ -191,7 +191,6 @@ def CreateReturnInfo(user, usage=None, access_token=None, refresh_token = None):
                 "is_subscribe": sub_info.is_subscribe,
                 "sub_start": sub_info.sub_start,
                 "sub_end": sub_info.sub_end,
-                "is_accept" : user.quest.is_accept
             },
         },
         status=status.HTTP_200_OK,
@@ -204,6 +203,9 @@ def CreateReturnInfo(user, usage=None, access_token=None, refresh_token = None):
     elif usage == "회원가입":
         response.data["message"] = "회원가입 성공"
         response.status_code = status.HTTP_201_CREATED
+    elif usage == "유효성":
+        response.data["isvalid"] = True
+        response.data["user"]["is_accept"] = user.quest.is_accept
     else:
         response.data["isvalid"] = True
 
