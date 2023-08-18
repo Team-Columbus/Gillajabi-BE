@@ -87,18 +87,6 @@ def get_train_ticket(request):
     serializer = Train_ticket(train_ticket, many=True)
     return Response(serializer.data)
 
-# 버스 출발 터미널 리스트
-@api_view(['GET'])
-def get_start_bus_list(request):
-    start_terminal = Bus.objects.values('start_terminal').distinct()
-    terminal_names = [terminal['start_terminal'] for terminal in start_terminal]
-    
-    response_data = {
-        'terminal': terminal_names,
-    }
-    
-    return Response(response_data)
-
 
 # 버스 도착 터미널 리스트
 @api_view(['GET'])
