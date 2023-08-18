@@ -61,8 +61,9 @@ class GetQuestView(APIView):
 
     def generate_quest(self):
         # categories = ["패스트푸드", "영화관", "교통"]
-        categories = ["영화관", "교통"]
-
+        # categories = ["영화관", "교통"]
+        categories = ["영화관"]
+        
         choice_category = random.choice(categories)
 
         if choice_category == "패스트푸드":
